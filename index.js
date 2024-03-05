@@ -1,67 +1,103 @@
-import { createUnlighthouse, defineConfig } from '@unlighthouse/core'
+import { createUnlighthouse } from '@unlighthouse/core'
+import { useUnlighthouseConfig } from './utils/lighthouse/config.js'
+import { useHookHandlers } from './utils/lighthouse/hookHandler.js'
+import { useReduceURL } from './utils/useReduceURL.js'
 
-// Define your configuration
-const config = defineConfig({
-    site: 'https://www.sfamarketing.com/', // Replace with your target site URL
-    lighthouseOptions: {
-        onlyCategories: ['seo'],
-        device: 'desktop',
-        
-        // Lighthouse options
-    },
-    output: 'lighthouse-results', // Output directory
-    device: 'desktop',
-    audit: {
-        // Lighthouse audit options
-        onlyCategories: ['seo'],
-    },
-    // Lighthouse flags
-    flags: {
-        // Lighthouse flags
-    },
-    // Lighthouse settings
-    settings: {
-        // Lighthouse settings
-    },
-    // Lighthouse plugins
-    plugins: {
-        // Lighthouse plugins
-    },
-    // Lighthouse assertions
-    assertions: {
-        // Lighthouse assertions
-    },
-    // Lighthouse assertions
-});
+import fs from 'fs'
+import path from 'path'
 
-const generateRouteDefinitions = () => {
-    return [
-        'https://www.sfamarketing.com/',
-        'https://www.sfamarketing.com/about/',
-        'https://www.sfamarketing.com/services/',
-    ]
-}
+import express from 'express'
 
-const test = async () => {
+const app = express()
+
+const port = 3000
+
+const config = await useUnlighthouseConfig({
+    site: 'https://www.sfamarketing.com/',
+})
+
+const runLightHouse = async ({ site, config }) => {
     const lighthouse = await createUnlighthouse(config, {
         name: 'custom',
-        // some custom implementation to find the route definitions
-        routeDefinitions: () => generateRouteDefinitions(),
+        routeDefinitions: () => () => {
+            return []
+        }
     })
 
+    const { taskHandlers, workerHandlers } = useHookHandlers(config);
     const { hooks } = lighthouse
 
-
-    hooks.hook('task-complete', (path, response) => {
-        console.log(response)
-    })
-
-    hooks.hook('worker-finished', () => {
-        console.log('all done :)')
-    })
+    // Register task-related hooks
+    hooks.hook('task-added', taskHandlers.added);
+    hooks.hook('task-started', taskHandlers.started);
+    hooks.hook('task-complete', taskHandlers.complete);
+    hooks.hook('worker-finished', workerHandlers.finished);
+    hooks.hook('discovered-internal-links', workerHandlers.discoveredInternalLinks);
 
     await lighthouse.start()
 }
 
+const getLightHouseResults = async ({ site }) => {
 
-test()
+
+}
+
+app.use(express.json());
+
+app.listen(port)
+
+app.post('/api/lighthouse/audit', async (req, res) => {
+    const body = req.body
+    const { site } = body
+
+    if (!site) {
+        return res.status(400).send('Site is required')
+    }
+
+    const baseURL = useReduceURL(site)
+
+    try {
+        await runLightHouse({ baseURL, config })
+        res.send('Lighthouse audit started')
+    } catch (error) {
+        res.status(500).send
+    }
+})
+
+app.get('/api/lighthouse/audit', async (req, res) => {
+    const params = req.query
+    const { site } = params
+
+    const baseURL = useReduceURL(site)
+
+    if (!site) {
+        return res.status(400).send('Site is required')
+    }
+
+    // Try to find folder with site name
+    const folderPath = `./audits/${baseURL}`
+    console.log(folderPath)
+    const folderExists = fs.existsSync
+
+    if (!folderExists) {
+        return res.status(404).send('No audit found')
+    }
+
+    const files = fs.readdirSync(folderPath);
+    const results = files.map((file) => {
+        const filePath = path.join(folderPath, file);
+        const stats = fs.statSync(filePath);
+        if (stats.isFile()) { // Check if the path is indeed a file
+            const data = fs.readFileSync(filePath, 'utf8');
+            return JSON.parse(data);
+        } else {
+            return null; // Or handle directories differently
+        }
+    }).filter(Boolean); // Filter out null values (directories in this case)
+
+    res.send(results);
+
+
+})
+
+// test()
