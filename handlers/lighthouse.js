@@ -1,5 +1,3 @@
-import fs from 'fs';
-import path from 'path';
 import { createUnlighthouse } from '@unlighthouse/core';
 import { useUnlighthouseConfig } from '../utils/lighthouse/config.js';
 import { useHookHandlers } from '../utils/lighthouse/hookHandler.js';
@@ -39,55 +37,6 @@ export const startAudit = async (req, res) => {
         res.send('Lighthouse audit started');
     } catch (error) {
         console.error('Lighthouse audit error:', error);
-        res.status(500).send('Internal Server Error');
-    }
-};
-
-export const listAudits = async (req, res) => {
-    const { site } = req.query;
-
-    if (!site) {
-        return res.status(400).send('Site is required');
-    }
-
-    const baseURL = useReduceURL(site);
-    const domainFolderPath = path.join(__dirname, '..', 'audits', baseURL);
-
-    if (!fs.existsSync(domainFolderPath)) {
-        return res.status(404).send('No audit found');
-    }
-
-    try {
-        const auditFolders = fs.readdirSync(domainFolderPath).filter(file => {
-            return fs.statSync(path.join(domainFolderPath, file)).isDirectory();
-        });
-
-        const audits = auditFolders.map(folder => {
-            const folderPath = path.join(domainFolderPath, folder);
-            const files = fs.readdirSync(folderPath);
-
-            const auditDetails = files.map(file => {
-                const filePath = path.join(folderPath, file);
-                const stats = fs.statSync(filePath);
-                if (stats.isFile()) {
-                    return {
-                        file,
-                        size: stats.size,
-                        createdAt: stats.birthtime,
-                    };
-                }
-                return null;
-            }).filter(Boolean); // Filter out null values
-
-            return {
-                audit: folder,
-                details: auditDetails,
-            };
-        });
-
-        res.send({ domain: baseURL, audits });
-    } catch (error) {
-        console.error('Error reading audit folders:', error);
         res.status(500).send('Internal Server Error');
     }
 };

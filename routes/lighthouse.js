@@ -1,11 +1,8 @@
 import express from 'express';
-import { startAudit, listAudits } from '../handlers/lighthouse.js';
+import { startAudit } from '../handlers/lighthouse.js';
 
 const router = express.Router();
 
-const ROUTE_AUDIT = '/lighthouse/audit';
-
-router.post(`${ROUTE_AUDIT}`, startAudit);
-router.get(`${ROUTE_AUDIT}/list`, listAudits);
+router.post('/audit', startAudit);
 
 export default router;
