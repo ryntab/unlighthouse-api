@@ -66,7 +66,7 @@ export const getReportTree = (site, audit) => {
                     type: 'file',
                     size: stats.size,
                     createdAt: stats.birthtime,
-                    relativePath: path.join('audits', baseURL, audit, itemRelativePath).replace(/\\/g, '/'),
+                    relativePath: path.join('audits', site, audit, itemRelativePath).replace(/\\/g, '/'),
                 };
             }
         });
@@ -76,5 +76,43 @@ export const getReportTree = (site, audit) => {
         site,
         audit,
         tree: readDirectoryRecursive(auditFolderPath),
+    };
+};
+
+export const getSiteTree = (site) => {
+    const baseURL = useReduceURL(site);
+    const siteFolderPath = path.join(__dirname, '..', 'audits', baseURL);
+
+    if (!fs.existsSync(siteFolderPath)) {
+        throw new Error('Site not found');
+    }
+
+    const readDirectoryRecursive = (dirPath, relativePath = '') => {
+        const items = fs.readdirSync(dirPath);
+        return items.map(item => {
+            const itemPath = path.join(dirPath, item);
+            const itemRelativePath = path.join(relativePath, item).replace(/\\/g, '/');
+            const stats = fs.statSync(itemPath);
+            if (stats.isDirectory()) {
+                return {
+                    name: item,
+                    type: 'directory',
+                    children: readDirectoryRecursive(itemPath, itemRelativePath),
+                };
+            } else {
+                return {
+                    name: item,
+                    type: 'file',
+                    size: stats.size,
+                    createdAt: stats.birthtime,
+                    relativePath: path.join('audits', site, itemRelativePath).replace(/\\/g, '/'),
+                };
+            }
+        });
+    };
+
+    return {
+        site,
+        tree: readDirectoryRecursive(siteFolderPath),
     };
 };
