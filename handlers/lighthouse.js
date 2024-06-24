@@ -3,8 +3,9 @@ import { useUnlighthouseConfig } from "../utils/lighthouse/config.js";
 import { useHookHandlers } from "../utils/lighthouse/hookHandler.js";
 import { useReduceURL } from "../utils/useReduceURL.js";
 
-export const runLightHouse = async ({ site, config, pingBack }) => {
+import { randomBytes } from "crypto";
 
+export const runLightHouse = async ({ site, config, pingBack }) => {
   const lighthouse = await createUnlighthouse(config, {
     name: "custom",
     routeDefinitions: () => () => [],
@@ -32,7 +33,7 @@ export const runLightHouse = async ({ site, config, pingBack }) => {
 
 // Function to handle audit start request
 export const startAudit = async (req, res) => {
-  const { site, pingBack, config } = req.body;
+  const { site, pingBack, config, secure } = req.body;
 
   if (!site) {
     return res
@@ -41,18 +42,37 @@ export const startAudit = async (req, res) => {
   }
 
   const baseURL = useReduceURL(site);
-  const lightHouseConfig = await useUnlighthouseConfig({ site: baseURL, ...config });
-
-
+  const lightHouseConfig = await useUnlighthouseConfig({
+    site: baseURL,
+    ...config,
+  });
 
   try {
-    await runLightHouse({ site: baseURL, config: lightHouseConfig, pingBack });
+
+    await runLightHouse({
+      site: baseURL,
+      config: lightHouseConfig,
+      pingBack,
+      secure: false,
+    });
+
+    let key = secure ? randomBytes(24).toString("hex") : null;
+    const response = new Object();
+
+    if (secure) {
+      response.key = key;
+    }
+
+    response.message = pingBack
+      ? "Lighthouse audit started. Your pingback URLs will be updated."
+      : "Lighthouse audit started. You can check the audit response by calling /api/audit/:id.";
+
     res.send({
       success: true,
-      message: pingBack
-        ? "Lighthouse audit started. Your audit response will be sent to the provided URL."
-        : "Lighthouse audit started. You can check the audit response by calling /api/audit/:id.",
+      ...response,
     });
+
+
   } catch (error) {
     console.error("Lighthouse audit error:", error);
     res.status(500).send({ success: false, message: "Internal Server Error" });
