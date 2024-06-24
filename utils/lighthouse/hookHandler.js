@@ -23,7 +23,6 @@ const useHookHandlers = ({ config, pingBack, site }) => {
 
   const taskHandlers = {
     added: (path, response) => {
-      // console.log('task added', path, response)
       notifyPingBackURL(getPingBackURL("task_added"), "task-added", {
         site,
         path,
@@ -31,7 +30,6 @@ const useHookHandlers = ({ config, pingBack, site }) => {
       });
     },
     started: (path, response) => {
-      // console.log('task started', path, response)
       notifyPingBackURL(getPingBackURL("task_started"), "task-started", {
         site,
         path,
@@ -39,7 +37,6 @@ const useHookHandlers = ({ config, pingBack, site }) => {
       });
     },
     complete: (path, response) => {
-      // console.log('task complete', path, response)
       notifyPingBackURL(getPingBackURL("task_complete"), "task-complete", {
         site,
         path,
