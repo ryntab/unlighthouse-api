@@ -4,12 +4,12 @@ const useUnlighthouseConfig = (config) => {
     const safeConfig = {
         site: config.site || 'defaultSiteURL',
         lighthouseOptions: config.lighthouseOptions || {},
-        // cache: false,
+        cache: config.cache || true,
         outputPath: 'audits',
         scanner: {
             device: config.scanner?.device || 'desktop',
-            maxRoutes: config.scanner?.maxRoutes || 10,
-            maxWorkers: config.scanner?.maxWorkers || 4,
+            maxRoutes: config.scanner?.maxRoutes || 100,
+            maxWorkers: config.scanner?.maxWorkers || 2,
             dynamicSampling: config.scanner?.dynamicSampling || false,
         },
         audit: config.audit || {},

@@ -8,7 +8,7 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 
 // Use the lighthouse routes for starting audits
-app.use('/api/lighthouse', lighthouseRoutes);
+app.use('/api/', lighthouseRoutes);
 
 // Use the audit routes for reading audits
 app.use('/api/', auditRoutes);
