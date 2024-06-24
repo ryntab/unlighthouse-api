@@ -3,6 +3,6 @@ import { startAudit } from '../handlers/lighthouse.js';
 
 const router = express.Router();
 
-router.post('/audit', startAudit);
+router.post('/lighthouse/audit', startAudit);
 
 export default router;
