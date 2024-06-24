@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Audit Reports</title>
+</head>
+<body>
+  <h1>Audit Reports</h1>
+  <% audits.forEach(audit => { %>
+    <h2><%= audit.site %></h2>
+    <% audit.reports.forEach(report => { %>
+      <h3>Audit ID: <%= report.auditId %></h3>
+      <ul>
+        <% report.reportFiles.forEach(file => { %>
+          <li><a href="/audits/<%= audit.site %>/<%= report.auditId %>/reports/<%= file %>"><%= file %></a></li>
+        <% }) %>
+      </ul>
+    <% }) %>
+  <% }) %>
+</body>
+</html>
