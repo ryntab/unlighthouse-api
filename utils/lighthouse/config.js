@@ -8,7 +8,7 @@ const useUnlighthouseConfig = (config) => {
         outputPath: 'audits',
         scanner: {
             device: config.scanner?.device || 'desktop',
-            maxRoutes: config.scanner?.maxRoutes || 100,
+            maxRoutes: config.scanner?.maxRoutes || 10,
             maxWorkers: config.scanner?.maxWorkers || 2,
             dynamicSampling: config.scanner?.dynamicSampling || false,
         },
