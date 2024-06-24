@@ -11,7 +11,7 @@ app.use(express.json());
 app.use('/api/lighthouse', lighthouseRoutes);
 
 // Use the audit routes for reading audits
-app.use('/api/audit', auditRoutes);
+app.use('/api/', auditRoutes);
 
 app.listen(port, () => {
     console.log(`Server Running on port: ${port} 🚀`);

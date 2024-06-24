@@ -4,7 +4,7 @@ import { useReduceURL } from '../utils/useReduceURL.js';
 
 const router = express.Router();
 
-router.get('/list', async (req, res) => {
+router.get('/audit/list', async (req, res) => {
     const { site } = req.query;
 
     if (!site) {
@@ -32,7 +32,7 @@ router.get('/list', async (req, res) => {
     }
 });
 
-router.get('/report-tree', async (req, res) => {
+router.get('/audit/report-tree', async (req, res) => {
     const { site, audit } = req.query;
 
     if (!site || !audit) {
@@ -52,7 +52,7 @@ router.get('/report-tree', async (req, res) => {
     }
 });
 
-router.get('/site-tree', async (req, res) => {
+router.get('/audit/site-tree', async (req, res) => {
     const { site } = req.query;
 
     if (!site) {
