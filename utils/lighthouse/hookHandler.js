@@ -50,16 +50,13 @@ const useHookHandlers = ({ config, pingBack, site }) => {
 
   const workerHandlers = {
     finished: () => {
-      notifyPingBackURL(getPingBackURL("worker_finished"), "worker-finished", {
-        site,
-      });
+      notifyPingBackURL(getPingBackURL("worker_finished"), "worker-finished");
     },
     discoveredInternalLinks: (path, response) => {
       notifyPingBackURL(
         getPingBackURL("discovered_internal_links"),
         "discovered-internal-links",
         {
-          site,
           path,
           response,
         }

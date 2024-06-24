@@ -2,7 +2,7 @@ import { defineConfig } from '@unlighthouse/core'
 
 const useUnlighthouseConfig = (config) => {
     const safeConfig = {
-        site: config.site || 'defaultSiteURL',
+        site: config.site || 'https://example.com',
         lighthouseOptions: config.lighthouseOptions || {},
         cache: config.cache || true,
         outputPath: 'audits',
