@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAuditFolders, getAuditDetails, getReportTree, getSiteTree } from '../handlers/auditReader.js';
+import { getAuditFolders, getAuditDetails, getReportTree, getSiteTree, getLighthouseJSON } from '../handlers/auditReader.js';
 import { useReduceURL } from '../utils/useReduceURL.js';
 
 const router = express.Router();
@@ -65,6 +65,26 @@ router.get('/audit/site-tree', async (req, res) => {
     } catch (error) {
         console.error('Error reading site tree:', error.message);
         if (error.message === 'Site not found') {
+            res.status(404).send(error.message);
+        } else {
+            res.status(500).send('Internal Server Error');
+        }
+    }
+});
+
+router.get('/audit/site/lighthouse-json', async (req, res) => {
+    const { site } = req.query;
+
+    if (!site) {
+        return res.status(400).send('Site and audit are required');
+    }
+
+    try {
+        const reportTree = getLighthouseJSON(site);
+        res.send(reportTree);
+    } catch (error) {
+        console.error('Error reading report tree:', error.message);
+        if (error.message === 'Audit not found') {
             res.status(404).send(error.message);
         } else {
             res.status(500).send('Internal Server Error');

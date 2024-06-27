@@ -116,3 +116,44 @@ export const getSiteTree = (site) => {
         tree: readDirectoryRecursive(siteFolderPath),
     };
 };
+
+export const getLighthouseJSON = (site) => {
+    const baseURL = useReduceURL(site);
+    const siteFolderPath = path.join(__dirname, '..', 'audits', baseURL);
+    
+    const result = {};
+
+    const findLighthouseFiles = (dir, auditName) => {
+        const reportsPath = path.join(dir, 'reports');
+        if (fs.existsSync(reportsPath) && fs.statSync(reportsPath).isDirectory()) {
+            const files = fs.readdirSync(reportsPath);
+            files.forEach(file => {
+                const filePath = path.join(reportsPath, file);
+                const stat = fs.statSync(filePath);
+                if (stat.isDirectory() && file !== '_screenshot-thumbnails_') {
+                    const lighthouseFilePath = path.join(filePath, 'lighthouse.json');
+                    if (fs.existsSync(lighthouseFilePath)) {
+                        const relativePath = path.relative(path.join(__dirname, '..'), lighthouseFilePath).replace(/\\/g, '/');
+                        if (!result[auditName]) {
+                            result[auditName] = {};
+                        }
+                        if (!result[auditName][file]) {
+                            result[auditName][file] = [];
+                        }
+                        result[auditName][file].push(relativePath);
+                    }
+                }
+            });
+        }
+    };
+
+    const audits = fs.readdirSync(siteFolderPath);
+    audits.forEach(audit => {
+        const auditPath = path.join(siteFolderPath, audit);
+        if (fs.statSync(auditPath).isDirectory()) {
+            findLighthouseFiles(auditPath, audit);
+        }
+    });
+
+    return result;
+};
