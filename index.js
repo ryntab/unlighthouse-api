@@ -1,7 +1,10 @@
 import express from 'express';
 import lighthouseRoutes from './routes/lighthouse.js';
 import auditRoutes from './routes/auditRoutes.js';
-import ejs from 'ejs';
+import cors from 'cors'
+import dotenv from 'dotenv';
+dotenv.config();
+
 
 import { getDirname } from './utils/getDirname.js';
 import fs from 'fs';
@@ -14,6 +17,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use(cors())
 
 // Set the view engine to EJS
 app.set('view engine', 'ejs');
@@ -37,12 +41,12 @@ const test_hook_port = 3001;
 test_hook_server.use(express.json());
 
 test_hook_server.post('/pingback', (req, res) => {
-    const body = req.body;
-    const { data } = body;
-    const { response } = data;
-    const { seo } = response;
+    // const body = req.body;
+    // const { data } = body;
+    // const { response } = data;
+    // const { seo } = response;
 
-    console.log(response)
+    // console.log(response)
     res.send({ success: true });
 });
 

@@ -66,7 +66,7 @@ export const getReportTree = (site, audit) => {
                     type: 'file',
                     size: stats.size,
                     createdAt: stats.birthtime,
-                    relativePath: path.join('audits', site, audit, itemRelativePath).replace(/\\/g, '/'),
+                    relativePath: path.join('audits', baseURL, audit, itemRelativePath).replace(/\\/g, '/'),
                 };
             }
         });
@@ -105,14 +105,14 @@ export const getSiteTree = (site) => {
                     type: 'file',
                     size: stats.size,
                     createdAt: stats.birthtime,
-                    relativePath: path.join('audits', site, itemRelativePath).replace(/\\/g, '/'),
+                    relativePath: path.join('audits', baseURL, itemRelativePath).replace(/\\/g, '/'),
                 };
             }
         });
     };
 
     return {
-        site,
+        baseURL,
         tree: readDirectoryRecursive(siteFolderPath),
     };
 };
